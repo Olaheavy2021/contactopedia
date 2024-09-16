@@ -34,9 +34,12 @@ class ContactIndex extends React.Component {
           isFavorite: true,
         },
       ],
+      selectedContact: undefined,
+      isUpdating: false,
     };
   }
 
+  //Handle Add Contact
   handleAddContact = (newContact) => {
     if (newContact.name === "") {
       return { status: "failure", msg: "Please Enter a valid Name" };
@@ -67,6 +70,7 @@ class ContactIndex extends React.Component {
     }
   };
 
+  //Handle Toggle
   handleToggleFavorites = (contact) => {
     this.setState((prevState) => {
       return {
@@ -80,6 +84,7 @@ class ContactIndex extends React.Component {
     });
   };
 
+  //Handle Delete Contact
   handleDeleteContact = (contactId) => {
     this.setState((prevState) => {
       return {
@@ -90,6 +95,7 @@ class ContactIndex extends React.Component {
     });
   };
 
+  //Handle Add Random
   handleAddRandomContact = (newContact) => {
     const newFinalContact = {
       ...newContact,
@@ -101,6 +107,64 @@ class ContactIndex extends React.Component {
         contactList: prevState.contactList.concat([newFinalContact]),
       };
     });
+  };
+
+  //Handle Remove All
+  handleRemoveAllContact = () => {
+    this.setState(() => {
+      return {
+        contactList: [],
+      };
+    });
+  };
+
+  //Handle Update
+  handleUpdateClick = (contact) => {
+    console.log(contact);
+    this.setState(() => {
+      return {
+        selectedContact: contact,
+        isUpdating: true,
+      };
+    });
+  };
+
+  handleCancelUpdateContact = (contact) => {
+    console.log(contact);
+    this.setState(() => {
+      return {
+        selectedContact: undefined,
+        isUpdating: false,
+      };
+    });
+  };
+
+  handleUpdateContact = (updatedContact) => {
+    console.log(updatedContact);
+    if (updatedContact.name === "") {
+      return { status: "failure", msg: "Please Enter a valid Name" };
+    } else if (updatedContact.phone === "") {
+      return { status: "failure", msg: "Please Enter a valid Phone Number" };
+    }
+
+    this.setState((prevState) => {
+      return {
+        contactList: prevState.contactList.map((obj) => {
+          if (obj.id === updatedContact.id) {
+            return {
+              ...obj,
+              name: updatedContact.name,
+              email: updatedContact.email,
+              phone: updatedContact.phone,
+            };
+          }
+          return obj;
+        }),
+        isUpdating: false,
+        selectedContact: undefined,
+      };
+    });
+    return { status: "success", msg: "Contact was updated successfully" };
   };
 
   render() {
@@ -115,12 +179,20 @@ class ContactIndex extends React.Component {
               />
             </div>
             <div className="col-4 row">
-              <RemoveAllContact />
+              <RemoveAllContact
+                handleRemoveAllContact={this.handleRemoveAllContact}
+              />
             </div>
           </div>
           <div className="row py-2">
             <div className="col-8 offset-2 row">
-              <AddContact handleAddContact={this.handleAddContact} />
+              <AddContact
+                handleAddContact={this.handleAddContact}
+                isUpdating={this.state.isUpdating}
+                selectedContact={this.state.selectedContact}
+                cancelUpdateContact={this.handleCancelUpdateContact}
+                handleUpdateContact={this.handleUpdateContact}
+              />
             </div>
           </div>
           <div className="row py-2">
@@ -131,6 +203,7 @@ class ContactIndex extends React.Component {
                 )}
                 favoriteClick={this.handleToggleFavorites}
                 deleteContact={this.handleDeleteContact}
+                updateClick={this.handleUpdateClick}
               />
             </div>
           </div>
@@ -142,6 +215,7 @@ class ContactIndex extends React.Component {
                 )}
                 favoriteClick={this.handleToggleFavorites}
                 deleteContact={this.handleDeleteContact}
+                updateClick={this.handleUpdateClick}
               />
             </div>
           </div>
